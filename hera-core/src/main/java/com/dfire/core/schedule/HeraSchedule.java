@@ -22,13 +22,14 @@ public class HeraSchedule {
 
 
     public void startup() {
+        //通过原子操作来初始化mastercontext
         if (!running.compareAndSet(false, true)) {
             return;
         }
         HeraLog.info("begin to start master context");
         masterContext.init();
     }
-
+    //如果该节点不是master，那么就销毁对应的master资源
     public void shutdown() {
         if (running.compareAndSet(true, false)) {
             masterContext.destroy();

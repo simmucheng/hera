@@ -47,7 +47,7 @@ public class DistributeLock {
 
     @PostConstruct
     public void init() {
-        //设置调度的模式
+        //设置一个每过60s执行一次的lock检查
         workClient.workSchedule.scheduleAtFixedRate(this::checkLock, 10, 60, TimeUnit.SECONDS);
     }
 
@@ -81,6 +81,7 @@ public class DistributeLock {
             long lockTime = heraLock.getServerUpdate().getTime();
             long interval = currentTime - lockTime;
             //如果锁定的时间超过限制并且该主机有抢占锁的权限
+            //那么表示该master已经有一段时间没有更新过锁表的锁记录的时间了
             if (interval > timeout && isPreemptionHost()) {
                 Date date = new Date();
                 Integer lock = heraLockService.changeLock(WorkContext.host, date, date, heraLock.getHost());
@@ -97,6 +98,7 @@ public class DistributeLock {
                 heraSchedule.shutdown();
             }
         }
+        //初始化workclient
         workClient.init();
         try {
             workClient.connect(heraLock.getHost().trim());

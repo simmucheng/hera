@@ -103,6 +103,7 @@ public class WorkClient {
         workContext.setWorkClient(this);
         eventLoopGroup = new NioEventLoopGroup();
         bootstrap = new Bootstrap();
+        //创建netty网络连接
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -118,6 +119,7 @@ public class WorkClient {
                 });
         HeraLog.info("init work client success ");
 
+        //创建调度，生成心跳
         workSchedule.schedule(new Runnable() {
 
             private WorkerHandlerHeartBeat workerHandlerHeartBeat = new WorkerHandlerHeartBeat();
