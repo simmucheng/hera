@@ -47,12 +47,13 @@ public class DistributeLock {
 
     @PostConstruct
     public void init() {
-
+        //设置调度的模式
         workClient.workSchedule.scheduleAtFixedRate(this::checkLock, 10, 60, TimeUnit.SECONDS);
     }
 
     public void checkLock() {
         HeraLock heraLock = heraLockService.findBySubgroup(ON_LINE);
+        //先判断锁表中是否有加锁
         if (heraLock == null) {
             Date date = new Date();
             heraLock = HeraLock.builder()
@@ -63,12 +64,13 @@ public class DistributeLock {
                     .gmtCreate(date)
                     .gmtModified(date)
                     .build();
+            //给该主机注册到锁表中
             Integer lock = heraLockService.insert(heraLock);
             if (lock == null || lock <= 0) {
                 return;
             }
         }
-
+        //判断锁表中的锁中的hostip是否跟该主机一致
         if (isMaster = WorkContext.host.equals(heraLock.getHost().trim())) {
             heraLock.setServerUpdate(new Date());
             heraLockService.update(heraLock);
