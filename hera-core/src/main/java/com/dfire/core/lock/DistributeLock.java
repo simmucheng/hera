@@ -80,6 +80,7 @@ public class DistributeLock {
             long currentTime = System.currentTimeMillis();
             long lockTime = heraLock.getServerUpdate().getTime();
             long interval = currentTime - lockTime;
+            //如果锁定的时间超过限制并且该主机有抢占锁的权限
             if (interval > timeout && isPreemptionHost()) {
                 Date date = new Date();
                 Integer lock = heraLockService.changeLock(WorkContext.host, date, date, heraLock.getHost());
